@@ -1,3 +1,4 @@
+import os
 import openml
 import numpy as np
 import pickle
@@ -19,7 +20,14 @@ def save_suite(suite_id, dir_name, save_categorical_indicator=False, regression=
         else:
             le = LabelEncoder()
             y = le.fit_transform(np.array(y))
-        with open("{}/data_{}".format(dir_name, dataset.name), "wb") as f:
+        
+        filepath = "{}/data_{}".format(dir_name, dataset.name)
+        # create nested directories
+        dirname = os.path.dirname(filepath)
+        if len(dirname.split('/')) > 1 and not os.path.exists(dirname):
+            os.makedirs(dirname)
+
+        with open(filepath, "wb") as f:
             if save_categorical_indicator:
                 pickle.dump((X, y, categorical_indicator), f)
             else:
