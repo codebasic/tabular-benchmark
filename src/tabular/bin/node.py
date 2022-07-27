@@ -42,7 +42,7 @@ class NODE(nn.Module):
             self.register_buffer('category_offsets', category_offsets)
             self.category_embeddings = nn.Embedding(sum(categories), d_embedding)
             nn.init.kaiming_uniform_(self.category_embeddings.weight, a=math.sqrt(5))
-            print(f'{self.category_embeddings.weight.shape=}')
+            print(f'{self.category_embeddings.weight.shape}')
 
         self.d_out = d_out
         self.block = node.DenseBlock(

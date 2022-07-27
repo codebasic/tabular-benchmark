@@ -52,7 +52,7 @@ class Tokenizer(nn.Module):
             self.register_buffer('category_offsets', category_offsets)
             self.category_embeddings = nn.Embedding(sum(categories), d_token)
             nn_init.kaiming_uniform_(self.category_embeddings.weight, a=math.sqrt(5))
-            print(f'{self.category_embeddings.weight.shape=}')
+            print(f'{self.category_embeddings.weight.shape}')
 
     @property
     def n_tokens(self) -> int:
