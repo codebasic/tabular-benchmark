@@ -1,10 +1,7 @@
 from utils import create_sweep
 import pandas as pd
-
-# We use one project per benchmark to avoid WandB getting super slow
-WANDB_PROJECT_NAMES = ["thesis-5", "thesis-5", "thesis-5", "thesis-5",
-                       "thesis-5", "thesis-5", "thesis-5", "thesis-5"]
-
+from argparse import ArgumentParser
+import os.path
 
 data_transform_config = {
     "data__method_name": {
@@ -125,6 +122,12 @@ models = ["gbt", "rf", "xgb", "hgbt",
           "ft_transformer", "resnet", "mlp", "saint"]
 
 if __name__ == "__main__":
+
+    parser = ArgumentParser()
+    parser.add_argument('projects', metavar='WANDB_PROJECT_NAMES', type=str, nargs='+', help='WANDB project name')
+    parser.add_argument('path', metavar='output_dir', type=str, help='sweep id table output dir')
+    args = parser.parse_args()
+
     sweep_ids = []
     names = []
     projects = []
@@ -138,6 +141,7 @@ if __name__ == "__main__":
                     name += "_numerical"
                 if default:
                     name += "_default"
+                project_name = args.projects[i] if len(args.projects) > 1 else args.projects[0]
                 sweep_id = create_sweep(data_transform_config,
                              model_name=model_name,
                              regression=benchmark["task"] == "regression",
@@ -145,17 +149,17 @@ if __name__ == "__main__":
                              dataset_size = benchmark["dataset_size"],
                              datasets = benchmark["datasets"],
                              default=default,
-                             project=WANDB_PROJECT_NAMES[i],
+                             project=project_name,
                              name=name)
                 sweep_ids.append(sweep_id)
                 names.append(name)
-                projects.append(WANDB_PROJECT_NAMES[i])
+                projects.append(project_name)
                 print(f"Created sweep {name}")
                 print(f"Sweep id: {sweep_id}")
-                print(f"In project {WANDB_PROJECT_NAMES[i]}")
+                print(f"In project {project_name}")
 
     df = pd.DataFrame({"sweep_id": sweep_ids, "name": names, "project":projects})
-    df.to_csv("sweeps/benchmark_sweeps.csv", index=False)
-    print("Check the sweeps id saved at sweeps/benchmark_sweeps.csv")
-
-
+    
+    output_filepath = os.path.join(args.path, 'benchmark_sweeps.csv')
+    df.to_csv(output_filepath, index=False)
+    print(f"Check the sweeps id saved at {output_filepath}")
